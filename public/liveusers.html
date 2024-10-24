@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Users</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #1a1a1a, #333);
+    background-repeat: inherit;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+    color: #ddd;
+}
+
+h1 {
+    color: #ffcc00;
+    text-align: center;
+    text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.8);
+    margin-top: 20px;
+    font-size: 2.5em;
+    letter-spacing: 2px;
+}
+
+table {
+    width: 80%;
+    margin: 40px auto;
+    border-collapse: collapse;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+th, td {
+    font-weight: 600;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border: 1px solid #ddd;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+th {
+    background-color: #ffcc00;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 1.1em;
+}
+
+td:hover {
+    background-color: #ffeb99;
+}
+
+a {
+    color: #ffcc00;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+a:hover {
+    text-decoration: underline;
+    color: #fff;
+    text-shadow: 1px 1px 5px rgba(255, 204, 0, 0.8);
+}
+
+tr:nth-child(even) td {
+    background-color: #f2f2f2;
+}
+
+tr:hover td {
+    background-color: #ffe680;
+}
+
+table, th, td {
+    border: none;
+    border-radius: 5px;
+}
+
+table {
+    border-spacing: 0 10px;
+}
+</style>
+</head>
+<body>
+    <h1>Live Users</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Socket ID</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="usersList">
+        </tbody>
+    </table>
+
+    <script>
+        const socket = io();
+    
+
+      socket.emit('joinRoom', { name: 'Live User Page'});  
+    
+   
+        socket.on('userList', (users) => {
+            $('#usersList').empty(); 
+    
+
+            users.forEach(user => {
+                if (user.email) {
+
+                    const status = user.socketId ? 'Online' : 'Offline'; 
+                    $('#usersList').append(`
+                        <tr>
+                            <td><a href="#" onclick="getUserData('${user.email}')">${user.email}</a></td>
+                            <td>${user.socketId || 'N/A'}</td>
+                            <td>${status}</td>
+                        </tr>
+                    `);
+                }
+            });
+        });
+        function getUserData(email) {
+            $.get('/api/users?email=' + email, (data) => {
+                alert(`User Info: ${JSON.stringify(data)}`);
+            });
+        }
+    </script>
+</body>
+</html>
